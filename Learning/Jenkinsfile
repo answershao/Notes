@@ -1,0 +1,271 @@
+pipeline {
+//    agent any
+    agent { label 'worknode' }
+
+    environment { 
+        DOCKER_CONFIG = '/tmp/docker'
+        DOCKER = "docker --config $DOCKER_CONFIG"
+        BUILD_IMAGE = '780323805217.dkr.ecr.us-west-1.amazonaws.com/tools/build:latest'
+        DEPLOY_IMAGE = '780323805217.dkr.ecr.us-west-1.amazonaws.com/tools/deploy:latest'
+        ECR_DAEMON = '780323805217.dkr.ecr.us-west-1.amazonaws.com'
+    }
+
+    stages {
+        stage('clean workspace') {
+            when {
+                environment name: 'DEPLOY_TYPE', value: 'deploy'
+            }
+            steps {
+                deleteDir()
+            }
+        }
+        stage('initialization') {
+            steps {
+                sh '''
+                    /opt/tools/ecrlogin -c $DOCKER_CONFIG
+                    $DOCKER pull -q $BUILD_IMAGE
+                    $DOCKER pull -q $DEPLOY_IMAGE
+                '''
+
+                // Download latest image to this building if need.
+                // Such as tmfrontend that Dockerfile have to copy file from last deploy image.
+                script {
+                    if (params.PULL_LATEST_IMAGE == "yes") {
+                        sh "$DOCKER pull -q $ECR_DAEMON/$ENVIRONMENT/$SERVICE_NAME"
+                    }
+                }
+                script {
+                    // init variables to prevent errors due to the absence of variables.
+                    env.commit_username = ''
+                    env.changeString = ''
+                    env.commit_taskid = ''
+                    env.WAITTIME = 0
+                    env.ECS_CLUSTER = sh(
+                        returnStdout: true, 
+                        script: "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --ecs").trim()
+                    if (DEPLOY_TYPE == 'deploy') {
+                        env.GITURL = sh(
+                            returnStdout: true, 
+                            script: "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --git").trim()
+                        env.BUILD_COMMAND = sh(
+                            returnStdout: true, 
+                            script: "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --build-cmd").trim()
+                        env.DOCKER_ARGS = sh(
+                            returnStdout: true,
+                            script: "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --docker-args-with-codetoken").trim()
+                        env.LANGUAGE = sh(
+                            returnStdout: true,
+                            script: "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --language").trim()
+                            
+                        def image_tag = new Date().format("yyyyMMddHHmmss")
+                        env.SERVICE_IMAGE = "${ENVIRONMENT}/${SERVICE_NAME}:${image_tag}"
+
+                    } else if (DEPLOY_TYPE == 'rollback') {
+                        env.SERVICE_IMAGE = "${ROLLBACK_VERSION}"
+                    } else {
+                        echo "ERROR: DEPLOY_TYPE is ERROR"
+                        error "deploy type is error"
+                    }
+                }
+            }
+        }
+        stage('GitPull') {
+            when {
+                environment name: 'DEPLOY_TYPE', value: 'deploy'
+            }
+            steps {
+                checkout(
+                    $class: 'GitSCM', 
+                    branches: [[name: "$SERVICE_GIT_BRANCH"]], 
+                    extensions: [], 
+                    userRemoteConfigs: [[credentialsId: 'devops-ssh', url: "$GITURL"]]
+                )
+                script {
+                    def commit_username = []
+                    def commit_taskid = []
+                    for (changeSetList in currentBuild.changeSets) {
+                        for (entries in changeSetList) {
+                            // skip Jenkinsfile changes
+                            def pathfiles = entries.affectedFiles.path
+                            if (pathfiles[0] =~ '^Jenkinsfile') {
+                                continue
+                            }
+                            if (pathfiles[0] =~ '^README.md') {
+                                continue
+                            }
+                            env.changeString += "- $entries.msg [$entries.author]\n"
+                            commit_username.add(entries.author)
+                            commit_taskid.add(entries.msg.split(' ')[0])
+                        }
+                    }
+                    env.commit_username = commit_username.join(',')
+                    env.commit_taskid = commit_taskid.join(',')
+                    if (changeString) {
+                        env.changeString = "<${RUN_CHANGES_DISPLAY_URL}|Changes>:\n" + changeString
+                    }
+                }
+            }
+        }
+        stage('build') {
+            when {
+                environment name: 'DEPLOY_TYPE', value: 'deploy'
+            }
+            steps {
+                sh '''
+                    $DOCKER run -t --rm -v ${WORKSPACE}:/build $BUILD_IMAGE --environment $ENVIRONMENT -s $SERVICE_NAME "$BUILD_COMMAND"
+                '''
+                script {
+                    if (params.USE_DOCKER_CACHE == "yes") {
+                        sh "$DOCKER build -t $ECR_DAEMON/$SERVICE_IMAGE --build-arg DOCKER_ENV=$ENVIRONMENT $DOCKER_ARGS ."
+                    } else {
+                        sh "$DOCKER build --no-cache -t $ECR_DAEMON/$SERVICE_IMAGE --build-arg DOCKER_ENV=$ENVIRONMENT $DOCKER_ARGS ."
+                    }
+                }
+                sh "$DOCKER push $ECR_DAEMON/$SERVICE_IMAGE"
+            }
+            post {
+                always {
+                    script {
+                        def info = "(<${RUN_ARTIFACTS_DISPLAY_URL}|BuildLOG>)"
+                        if (currentBuild.currentResult == 'SUCCESS') {
+                            if (ManuallyTriggerDeploy == 'true') {
+                                info += "\nCheck <<${RUN_DISPLAY_URL}|here>> to deploy. Waiting......"
+                            } else {
+                                info += "\nCheck <<${RUN_DISPLAY_URL}|here>> to show. Deploying......"
+                            }
+                        } else {
+                            info += "(<${RUN_DISPLAY_URL}|Steps>)"
+                        }
+                        def slack_userid = sh(
+                            returnStdout: true,
+                            script: "/opt/tools/cmdbop -s $SERVICE_NAME --get-slack-userid ''").trim()
+                        slackSend(
+                            channel: "$SLACK_CHANNEL",
+                            tokenCredentialId: 'e3e1831e-21a5-4b55-a501-6e50b23b1068',
+                            color: '#02b300',
+                            message: "$JOB_NAME - $BUILD_DISPLAY_NAME Build $currentBuild.currentResult after $currentBuild.durationString\n$info\n$slack_userid\n$changeString"
+                        )
+                    }
+                }
+            }
+        }
+        stage('cleanup') {
+            when {
+                environment name: 'DEPLOY_TYPE', value: 'deploy'
+            }
+            steps {
+                // 'echo' is behind 'image rm ** ||' for avoid exit deploy in rm failed.
+                sh "$DOCKER image rm $ECR_DAEMON/$SERVICE_IMAGE || echo"
+                script {
+                    if (params.PULL_LATEST_IMAGE == "yes") {
+                        sh "$DOCKER image rm $ECR_DAEMON/$ENVIRONMENT/$SERVICE_NAME || echo"
+                    }
+                }
+            }
+        }
+        stage('waiting') {
+            when {
+                environment name: 'DEPLOY_TYPE', value: 'deploy'
+                environment name: 'ManuallyTriggerDeploy', value: 'true'
+            }
+            options {
+                timeout(time: 8, unit: 'HOURS') 
+            }
+            steps {
+                script {
+                    env.WAITTIME_START=currentBuild.duration
+                }
+                sh "/opt/tools/onwait --add-service $JOB_NAME"
+                input message: 'Do you want deploy?', ok: 'deploy'
+            }
+            post {
+                always {
+                    script {
+                        int waittime = (currentBuild.duration - (env.WAITTIME_START as Integer)) / 1000 / 60
+                        env.WAITTIME = waittime
+                    }
+                    sh "/opt/tools/onwait --del-service $JOB_NAME"
+                }
+            }
+        }
+        stage('deploy') {
+            when {
+                environment ignoreCase: true, name: 'SKIP_DEPLOY_STEPS', value: 'no'
+            }
+            steps {
+                script {
+                    if (params.SKIP_UPDATE_SERVICE == "yes") {
+                        sh '''
+                            $DOCKER run -t --rm $DEPLOY_IMAGE -s $SERVICE_NAME -c $ECS_CLUSTER -i $SERVICE_IMAGE --skip-update-service
+                        '''
+                    } else {
+                        sh '''
+                            $DOCKER run -t --rm $DEPLOY_IMAGE -s $SERVICE_NAME -c $ECS_CLUSTER -i $SERVICE_IMAGE
+                        '''
+                    }
+                }
+            }
+            post {
+                success {
+                    script {
+                        if (DEPLOY_TYPE != 'rollback') {
+                            echo "state: $currentBuild.result"
+                            sh "/opt/tools/cmdbop --environment $ENVIRONMENT -s $SERVICE_NAME --put-deploy-records $SERVICE_IMAGE"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post { 
+        failure {
+            script {
+                def slack_userid = sh(
+                    returnStdout: true, 
+                    script: "/opt/tools/cmdbop -s $SERVICE_NAME --get-slack-userid '$commit_username'").trim()
+                slackSend(
+                    channel: "$SLACK_CHANNEL", 
+                    color: '#ff0000',
+                    message: "$JOB_NAME - $BUILD_DISPLAY_NAME Release Failure after $currentBuild.durationString\nWaiting: $WAITTIME min\n(<${RUN_DISPLAY_URL}|Steps>) (<${RUN_ARTIFACTS_DISPLAY_URL}|Log>)\n$slack_userid\n$changeString"
+                )
+            }
+        }
+        success {
+            script {
+                def slack_userid = sh(
+                    returnStdout: true, 
+                    script: "/opt/tools/cmdbop -s $SERVICE_NAME --get-slack-userid '$commit_username' --get-slack-userid-with-taskid '$commit_taskid'").trim()
+                slackSend(
+                    channel: "$SLACK_CHANNEL", 
+                    color: '#02b300',
+                    message: "$JOB_NAME - $BUILD_DISPLAY_NAME Release Success after $currentBuild.durationString\nWaiting: $WAITTIME min\n(<${RUN_DISPLAY_URL}|Steps>) (<${RUN_ARTIFACTS_DISPLAY_URL}|Log>)\n$slack_userid\n$changeString"
+                )
+            }
+        }
+        unstable {
+            script {
+                def slack_userid = sh(
+                    returnStdout: true, 
+                    script: "/opt/tools/cmdbop -s $SERVICE_NAME --get-slack-userid '$commit_username'").trim()
+                slackSend(
+                    channel: "$SLACK_CHANNEL", 
+                    color: '#faff00',
+                    message: "$JOB_NAME - $BUILD_DISPLAY_NAME Release Unstable after $currentBuild.durationString\nWaiting: $WAITTIME min\n(<${RUN_DISPLAY_URL}|Steps>) (<${RUN_ARTIFACTS_DISPLAY_URL}|Log>)\n$slack_userid\n$changeString"
+                )
+            }
+        }
+        aborted {
+            script {
+                def slack_userid = sh(
+                    returnStdout: true, 
+                    script: "/opt/tools/cmdbop -s $SERVICE_NAME --get-slack-userid '$commit_username'").trim()
+                slackSend(
+                    channel: "$SLACK_CHANNEL", 
+                    color: '#8c8c8c',
+                    message: "$JOB_NAME - $BUILD_DISPLAY_NAME Release Aborted after $currentBuild.durationString\nWaiting: $WAITTIME min\n(<${RUN_DISPLAY_URL}|Steps>) (<${RUN_ARTIFACTS_DISPLAY_URL}|Log>)\n$slack_userid\n$changeString"
+                )
+            }
+        }
+    }
+}
+

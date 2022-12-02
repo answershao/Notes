@@ -1,0 +1,2 @@
+{"name": "kafka.coordinator", "levelname": "INFO", "filename": "base.py", "lineno": 450, "funcName": "_send_join_group_request", "asctime": "2022-02-15 05:52:58,871", "msg": "(Re-)joining group aisourcing_token_parsing"}
+{"name": "kafka.coordinator", "levelname": "INFO", "filename": "base.py", "lineno": 335, "funcName": "_handle_join_success", "asctime": "2022-02-15 05:53:11,510", "msg": "Successfully joined group aisourcing_token_parsing with generation 3403"}
