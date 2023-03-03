@@ -1,0 +1,36 @@
+curl -i -X POST \
+   -H "Content-Type:application/json" \
+   -H "X-API-KEY:Qro19LxU4rMbPqrSU2ymWJhHSeOCtq6e" \
+   -d \
+'{"astask_sourcing_channel": [], "astask_included_ats_filter_on": false, "astask_mandatory_skills": [],  "astask_no_need_sponsorship": true, "astask_excluded_company_ids": ["cmp-677d5e7b-c577-40f0-8166-ca579ced8ba1"], "astask_excluded_companies": ["kaiser permanente"], "astask_excluded_past_companies": [], "astask_past_titles": ["certified tumor registrar"], "astask_titles": ["certified tumor registrar"], "astask_disabled_filter_check": {"locationsRange": true}, "user_id": "5b63a13d-2838-4802-a374-6853f6be81de", "astask_id": "sh_73431af0-f96a-11ec-883a-c7cfda1428ab"}' \
+ 'http://10.100.10.217:4545/get_specialty_suggestion'
+
+
+
+
+ curl -i -X POST \
+   -H "Content-Type:application/json" \
+   -H "X-API-KEY:Qro19LxU4rMbPqrSU2ymWJhHSeOCtq6e" \
+   -d \
+'[{"doximity_url": null, "healthgrades_url": "https://www.healthgrades.com/providers/heidi-schleiffarth-222bt", "ratemd_url": null, "doximity_specialty": [],"doximity_subspecialty": [],  "healthgrades_specialty": ["specialist", "technician"], "ratemd_specialty": [], "experience": [{"position_title": "cardiovascular interventional", "position_company_name": "Kenneth T Miller Dds, Ms", "position_company_website_url": "", "position_company_linkedin_url": "", "position_location": "", "position_summary": "", "position_iscurrent": true, "position_company_logo": "", "position_start_date": null, "position_end_date": "present", "normed_domain": "", "company_id": "", "normed_position_title": []}], "handson": null, "user_id": "c2c_6cf7f617-7154-49a5-80f6-709f8de6bb03"}]' \
+ 'http://10.100.10.217:4546/healthcare_profile_specialties'
+
+
+
+
+ curl -i -X POST \
+   -H "Content-Type:application/json" \
+   -H "X-API-KEY:Qro19LxU4rMbPqrSU2ymWJhHSeOCtq6e" \
+   -d \
+'{"astask_sourcing_channel": [], "astask_included_ats_filter_on": false, "astask_mandatory_skills": [],  "astask_no_need_sponsorship": true, "astask_excluded_company_ids": ["cmp-677d5e7b-c577-40f0-8166-ca579ced8ba1"], "astask_excluded_companies": ["kaiser permanente"], "astask_excluded_past_companies": [], "astask_past_titles": ["certified tumor registrar"], "astask_titles": ["certified tumor registrar"], "astask_disabled_filter_check": {"locationsRange": true}, "user_id": "5b63a13d-2838-4802-a374-6853f6be81de", "astask_id": "sh_73431af0-f96a-11ec-883a-c7cfda1428ab"}' \
+ 'http://mlgeneral.api.testhtm/get_specialty_suggestion'
+
+
+
+
+ curl -i -X POST \
+   -H "Content-Type:application/json" \
+   -H "X-API-KEY:Qro19LxU4rMbPqrSU2ymWJhHSeOCtq6e" \
+   -d \
+'[{"doximity_url": null, "healthgrades_url": "https://www.healthgrades.com/providers/heidi-schleiffarth-222bt", "ratemd_url": null, "doximity_specialty": [],"doximity_subspecialty": [],  "healthgrades_specialty": ["specialist", "technician"], "ratemd_specialty": [], "experience": [{"position_title": "cardiovascular interventional", "position_company_name": "Kenneth T Miller Dds, Ms", "position_company_website_url": "", "position_company_linkedin_url": "", "position_location": "", "position_summary": "", "position_iscurrent": true, "position_company_logo": "", "position_start_date": null, "position_end_date": "present", "normed_domain": "", "company_id": "", "normed_position_title": []}], "handson": null, "user_id": "c2c_6cf7f617-7154-49a5-80f6-709f8de6bb03"}]' \
+ 'http://mlreview.api.testhtm/healthcare_profile_specialties'

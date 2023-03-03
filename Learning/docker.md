@@ -45,25 +45,22 @@ docker run --name GaoYongzhan
 # 指定端口
 "-p 9998"
 
-docker run --name ml_engine -d --cap-add SYS_PTRACE --network host --restart always -v /home/shpf/ml_engine/:/root -w /root ubuntu_dev "/usr/sbin/sshd" "-D" "-p 9996"
+docker run --name ????? -d --cap-add SYS_PTRACE --network host --restart always \
+-v /home/shpf/ml_engine/:/root \
+-v /mnt/:/mnt/ \
+-v /data2/ML-Engine_Meta:/root/ML-Engine_Meta \
+-w /root shaopengfei "/usr/sbin/sshd" "-D" "-p 9996"
 
 # docker 修改容器的挂载目录
 docker ps -a
 docker commit container_id new_image_name
 docker run --name ShaoPengfei -d --cap-add SYS_PTRACE --network host --restart always \
+-v /mnt/:/mnt/ \
 -v /data2/ML-Engine_Meta:/root/ML-Engine_Meta \
 -v /data2/resume/:/root/resume/ \
 -v /data2/resume-test/:/root/resume-test/ \
 -v /data/ShaoPengfei/:/root/ \
--w /root ubuntu_dev_0722 "/usr/sbin/sshd" "-D" "-p 9993"
-
-docker run --name TaoXinkai -d --cap-add SYS_PTRACE --network host --restart always \
--v /data1/TaoXinKai/:/root \
--v /data2/ML-Engine_Meta:/root/ML-Engine_Meta \
--v /data1/:/data1 \
--v /data2/:/data2 \
--w /root ubuntu_xinkai_0722 "/usr/sbin/sshd" "-D" "-p 9993"
-
+-w /root shaopf20230215 "/usr/sbin/sshd" "-D" "-p 9997"
 
 
  <!-- container !!!!! -->

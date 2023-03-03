@@ -54,6 +54,9 @@ docker logs -f full_import
 
 
 
+
+
+
 <!-- prod server  -->
 <!-- prod server  -->
 <!-- prod server  -->
@@ -62,6 +65,35 @@ docker build -f docker/Dockerfile -t full_import \
 --build-arg ARGS="--operator=full_import --source=s3://hiretual-ml-data/dump_profile/prod_test/ \
 --save_path=/root/pika/" \
 --build-arg PROCESSES=16 .
+
+<!-- docker run -->
+docker run -d --name full_import -e ENV=test --network host \
+-v /efs/resume/pika/:/root/pika \
+-v /efs/ML-Engine_Meta:/root/ML-Engine_Meta \
+full_import
+
+docker logs -f full_import
+
+
+
+
+
+
+
+
+# stage server 
+<!-- stage server  -->
+git clone git@github.com:HireTeamMate/ranking-engine.git
+
+<!-- replace settings.py -->
+
+
+<!-- docker build -->
+docker build -f docker/Dockerfile -t full_import \
+--build-arg SCRIPT_NAME=/root/ranking_engine/docker/run_aisourcing_process.sh \
+--build-arg ARGS="--operator=title_skill_data --source=s3://hiretual-ml-data-test/dump_profile/stage/ \
+--save_path=/root/pika/" \
+--build-arg PROCESSES=1 .
 
 <!-- docker run -->
 docker run -d --name full_import -e ENV=test --network host \
