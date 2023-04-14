@@ -75,23 +75,3 @@ aisourcing -
 从小写恢复到原始， => task_persona/query_understand
 主要还是关心boolean string 这一个key！
 
-03-02
-修复embedding逻辑 bug
-开始看看 two tower embedding 架构的代码，需要重构
-
-
-03-03
-pika 重写数据，要通过efs。 efs 路径是什么
-/raw_source/dump_profile_client
-/raw_source/dump_profile
-
-test 环境在s3，刷完再写一次。先用efs的搞一次。然后prod 搞起来
-
-chatgpt 加日志，记录个数变化
-
-
-1. yml 文件
-2. 自动上传
-3. 下载
-4. 调用 新继承的类
-5. 修改

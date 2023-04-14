@@ -28,16 +28,21 @@ docker logs -f local_import
 
 <!-- prod server  -->
 <!-- prod server  -->
+
+<!-- branch: -->
+shpf/local-import
+<!-- cd ranking-engine -->
+cd ranking-engine/
 <!-- prod server  -->
 docker build -f docker/Dockerfile -t local_import \
 --build-arg SCRIPT_NAME=/root/ranking_engine/docker/run_aisourcing_process.sh \
 --build-arg ARGS="--operator=local_import --source=/root/resume/raw \
 --save_path=/root/pika/" \
---build-arg PROCESSES=12 .
+--build-arg PROCESSES=10 .
 
 <!-- docker run -->
 docker run -d --name local_import -e ENV=test --network host \
--v /efs/resume/raw:/root/resume/raw \
+-v /efs//raw_source/dump_profile:/root/resume/raw \
 -v /efs/resume/pika/:/root/pika \
 -v /efs/ML-Engine_Meta:/root/ML-Engine_Meta \
 local_import
