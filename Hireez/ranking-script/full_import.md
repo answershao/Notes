@@ -102,3 +102,16 @@ docker run -d --name full_import -e ENV=test --network host \
 full_import
 
 docker logs -f full_import
+
+
+
+# eks job
+
+# stage
+--operator fullimport --source s3://hiretual-ml-data-test/dump_profile/test/ --columnar cosent --dump_date 07182023
+# stage-client 
+--operator fullimport --source s3://hiretual-ml-data-test/dump_profile_client/test/ --columnar cosent --dump_date 07182023-client
+
+
+
+shpf/cosent-ranking-release/ML-495

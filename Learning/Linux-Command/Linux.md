@@ -1,3 +1,18 @@
+<!-- set env variables -->
+/etc/profile
+
+# vi /etc/profile 
+export CLASSPATH=./JAVA_HOME/lib;$JAVA_HOME/jre/lib 
+注：修改文件后要想马上生效，还要运行source /etc/profile。不然只能在下次重进此用户时生效。
+
+# vi /home/guok/.bash.profile 
+export CLASSPATH=./JAVA_HOME/lib;$JAVA_HOME/jre/lib 
+注：修改文件后要想马上生效，还要运行source /home/guok/.bash_profile。不然只能在下次重进此用户时生效。
+
+# export命令定义变量【只对当前shell(BASH)有效(临时的)】
+
+
+
 ## 命令大全
 <!-- https://github.com/mingongge/Learn-a-Linux-command-every-day -->
 
@@ -62,11 +77,6 @@ rm -r
 sudo 
 
 
-
 for i in $(ls *.gz);do tar -xvf $i;done
 for i in $(ls *.gz);do gzip -d $i;done
-
-
-
--m src.offline.offline_server --data s3://hiretual-ml-data/dump_profile/test/ --operator full_import 
 

@@ -56,11 +56,11 @@ docker ps -a
 docker commit container_id new_image_name
 docker run --name ShaoPengfei -d --cap-add SYS_PTRACE --network host --restart always \
 -v /mnt/:/mnt/ \
+-v /data1/:/root/data1/ \
+-v /data2/:/root/data2/ \
 -v /data2/ML-Engine_Meta:/root/ML-Engine_Meta \
--v /data2/resume/:/root/resume/ \
--v /data2/resume-test/:/root/resume-test/ \
 -v /data/ShaoPengfei/:/root/ \
--w /root shaopf20230215 "/usr/sbin/sshd" "-D" "-p 9997"
+-w /root shaopf20230615 "/usr/sbin/sshd" "-D" "-p 9997"
 
 
  <!-- container !!!!! -->
@@ -257,3 +257,11 @@ docker exec -it ubuntu-py39 bash
 cd ranking-engine
 cd docker 
 sh init_docker.sh
+
+
+
+# 修改启动入口
+docker run --rm -it --entrypoint=/bin/bash image-name
+
+# 只启动，不执行
+docker run -dt --name fp1 feature-platform:v1 

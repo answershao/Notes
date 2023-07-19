@@ -1,3 +1,7 @@
+# 生成 ssh key
+ssh-keygen -t ed25519 -C "pengfeishao@hireez.com"
+
+
 # 拉指定分支
 git clone -b develop git@github.com:HireTeamMate/ranking-engine.git
 git clone -b shpf/aisourcing git@github.com:HireTeamMate/ranking-engine.git
