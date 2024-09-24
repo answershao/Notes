@@ -1,0 +1,218 @@
+%%
+%% Copyright (c) 2018-2023 Weitian LI
+%% CC BY 4.0 License
+%%
+
+% Chinese version
+\documentclass[zh]{resume}
+
+% Adjust icon size (default: same size as the text)
+\iconsize{\Large}
+
+% File information shown at the footer of the last page
+\fileinfo{%
+  \faCopyright{} 2023, Xxx Xx \hspace{0.5em}
+  %\creativecommons{by}{4.0} \hspace{0.5em}
+  %\githublink{account}{repo} \hspace{0.5em}
+  \faEdit{} \today
+}
+
+\name{鹏飞}{邵}
+
+\keywords{关键词1, 关键词2, ...}
+
+% \tagline{\icon{\faBinoculars}} <position-to-look-for>}
+% \tagline{<current-position>}
+
+% \photo{<height>}{<filename>}
+
+\profile{
+  \mobile{188-1149-8054}
+  \email{shpf\_94@163.com} \\
+  \university{北京航空航天大学}
+  \degree{控制科学与工程 \textbullet 硕士}
+  \birthday{1994-12}
+  \address{南京}
+  % Custom information:
+  % \icontext{<icon>}{<text>}
+  % \iconlink{<icon>}{<link>}{<text>}
+}
+
+\begin{document}
+\makeheader
+
+%======================================================================
+% Summary & Objectives
+%======================================================================
+{\onehalfspacing\hspace{2em}%
+自动化专业（自动控制方向）硕士研究生，必备扎实的数学，统计学基础；
+热衷计算机和网络技术，熟练掌握Matlab，Python语言编程；
+具备优秀的英文读写能力，发表SCI期刊论文一篇；此外，具备出色的团队协作能力，
+善于倾听他人意见，积极分享自己的想法，能够有效促进团队目标的达成。
+
+%======================================================================
+\sectionTitle{工作经历}{\faBriefcase}
+%======================================================================
+\begin{experiences}
+    \experience%
+    [2021.09]%
+    {2023.11}%
+    {机器学习工程师 @ 上海氦图科技有限公司（HireEZ）}%
+    [\begin{itemize}
+            \item \emph{候选人推荐系统平台搭建}
+                  \subitem 项目简介：开发面向企业客户的人才招聘推荐系统，兼顾系统实时性与高效性
+                  \subitem 主要工作：考虑硬件成本与读写性能，研究与实施部署Pika分布式数据库替代Redis；\\
+                  设计在线离线数据分离方案，保证数据一致性的同时优化线上服务性能；\\
+                  基于Tornado框架为精排模型设计并开发高并发方案，以应对峰值流量；\\
+                  从特征工程的角度分析排序模型中的不佳案例，并评估各特征的相关性；
+            \item \emph{特征工程平台搭建}
+                  \subitem 项目简介：优化人才库与职位特征生成与管理，提升精排模型迭代优化速度
+                  \subitem 主要工作：训练样本生成：提供统一配置化的训练样本生成能力，为模型效果验证提供数据支撑；\\
+                  %平台提供统一配置化的训练样本生成能力，为模型的效果验证提供数据支撑。
+                  %特征生成：离线侧接入spark平台数据，提供训练样本生成能力；
+                  特征生成与管理：提供对特征数据的加工、调度、存储能力，保证特征数据在线快速生效；统一离线在线特征生成逻辑，解决模型训练与推理特征数据一致性；\\
+                  特征配置：平台根据每个特征配置，单独启动任务进行特征拉取,支持基于模型的特征配置；避免特征重复计算，彼此隔离的问题；\\
+                  %解决了模型\&特征迭代的系统性问题，极大地提升了外卖算法的迭代效率；\\
+                  %模型服务、模型训练和特征平台，在线特征与离线特征分离，\\
+                  %通过特征配置化管理能力、特征&算子&解决方案复用能力以及离线在线打通能力，提升了特征迭代效率，降低了业务的接入成本，助力业务快速拿到结果
+        \end{itemize}]
+
+    \separator{0.5ex}
+    \experience%
+    [2019.02]%
+    {2021.09}%
+    {算法工程师 @ 中国航天科工8511所}%
+    [\begin{itemize}
+            \item \emph{目标参数识别}
+                  \subitem 项目简介：辐射源识别有两大任务，一大任务是目标的型号识别
+                  \subitem 主要工作：针对脉冲描述字(PDW)信息，开发基于树模型、特征变换的一维卷积神经网络两类算法实现对目标型号的精准识别，进一步提升辐射源识别的准确率，特别是提升难分辨型号的识别准确率。
+                  \subitem 树模型方面，对PDW求取最大值、最小值、均值、方差等信息、得到特征编码，利用LightGBM进行模型训练，识别率达到94.1\%；神经网络方面，考虑改变特征编码方式，并结合一维卷积与池化操作，搭建卷积神经网络模型，相比树模型提升1.5\%-2\%
+            \item \emph{目标个体识别}
+                  \subitem 项目简介：由于信号发射、信号调制以及元器件安装、调试等方面的细微不同，导致了相同型号辐射源发射的信号内在特征的不同，通过分析不同辐射源指纹可以识别特定辐射源
+                  \subitem 主要工作：数据上，通过特征值降维后的双谱特征作为唯一特征，将降维后的特征和信号融合输入，以此完成信号的特征增强；网络层面，引入残差模块来保证网络不会退化，提升原始信号中的整体特征信息来改善识别性能
+                  \subitem 时域信号作为直接输入，减少了将信号做时频处理所需的运算量，使用残差网络加深网络层数，进一步提升模型的准确率
+        \end{itemize}]
+
+    \separator{0.5ex}
+    \experience%
+    [2018.07]%
+    {2018.09}%
+    {数据分析师 @ 中国工商银行牡丹卡中心（实习）}%
+    [\begin{itemize}
+            \item 针对信用卡早期逾期客户（发生逾期支付状况，且逾期天数在1-90天内，即逾期期限段为N1-N3的客户），对其进行多维度精准量化
+        \end{itemize}]
+
+    \separator{0.5ex}
+    \experience%
+    [2018.06]%
+    {2018.08}%
+    {竞赛 @ 阿里云天池}%
+    [\begin{itemize}
+            \item \emph{句子语义相似度识别}
+                  \subitem 项目简介：充分理解用户的意图，在知识体系中精准地找到与之相匹配的内容，回答用户问题或提供解决方案
+                  \subitem 主要工作：包括数据预处理、特征工程、传统模型建模、神经网络建模和模型集成五部分，基于词向量作为特征训练LightGBM模型作为baseline，挖掘文本特征、数据特征和问题特征等完成特征构建，，完成基于LSTM的神经网络架构，针对样本不均衡问题，进行后处理，完成对句子相似度预测。排名前5\%
+        \end{itemize}]
+
+\end{experiences}
+
+
+%======================================================================
+\sectionTitle{技能和语言}{\faWrench}
+%======================================================================
+\begin{competences}
+    \comptence{操作系统}{%
+        \icon{\faLinux} Linux，
+    }
+    \comptence{编程语言}{%
+        MatLab, Python, Shell
+    }
+    \comptence{数据分析}{%
+        Pandas, R; Matplotlib, ggplot2; Keras, Scikit-learn
+    }
+    \comptence{\icon{\faLanguage} 语言}{
+        \textbf{英语} --- 读写（优良），听说（日常交流）
+    }
+\end{competences}
+
+%======================================================================
+\sectionTitle{教育背景}{\faGraduationCap}
+%======================================================================
+\begin{educations}
+    \education%
+    {2016.09}%
+    [2019.01]%
+    {北京航空航天大学}%
+    {自动化学院}%
+    {控制科学与工程}%
+    {硕士}
+
+    \separator{0.5ex}
+    \education%
+    {2012.09}%
+    [2016.06]%
+    {中国农业大学}%
+    {工学院}%
+    {机械电子工程}%
+    {学士}
+\end{educations}
+
+\end{document}
+%======================================================================
+\sectionTitle{计算机技能}{\faCogs}
+%======================================================================
+\begin{itemize}
+    \item DragonFly BSD 操作系统开发者：
+          200+ 代码提交；内核以及系统工具；
+          在邮件列表和 IRC 频道交流和回答问题
+    \item 使用 Ansible 管理 VPS，部署个人域名邮箱、权威 DNS、网站、Git、IRC 等服务
+    \item 搭建并管理课题组的工作站、计算集群（4 节点）和网络设备
+    \item 参与配置和测试上海天文台的 SKA 高性能计算集群原型机
+          （1 管理节点 + 1 存储节点 + 4 计算节点）
+    \item 设计并开发了\enquote{2014 第一届中国—新西兰联合 SKA 暑期学校}的整个网站
+          （Django, Bootstrap, jQuery）
+\end{itemize}
+
+%======================================================================
+\sectionTitle{个人项目}{\faCode}
+%======================================================================
+\begin{itemize}
+    \item \link{https://github.com/liweitianux/atoolbox}{\texttt{atoolbox}}:
+          (Python, Shell)
+          多年来累积的各种工具，帮助管理系统、执行常用任务、分析天文数据等
+    \item \link{https://github.com/liweitianux/dfly-update}{\texttt{dfly-update}}:
+          (Shell)
+          DragonFly BSD 系统更新程序
+    \item \link{https://github.com/liweitianux/openrcs}{\texttt{openrcs}}:
+          (C)
+          改进 \texttt{OpenBSD RCS}，使其与 \texttt{GNU RCS} 足够兼容
+    \item \link{https://github.com/liweitianux/fg21sim}{\texttt{fg21sim}}:
+          (Python)
+          模拟低频射电天空图像
+    \item \link{https://github.com/liweitianux/cdae-eor}{\texttt{cdae-eor}}:
+          (Python, Keras)
+          使用卷积去噪自动编码器（CDAE）分离宇宙再电离（EoR）信号
+    \item \link{https://github.com/liweitianux/chandra-acis-analysis}{\texttt{chandra-acis-analysis}}:
+          (Python, Shell, Tcl)
+          X~射线天文观测数据的半自动化分析程序
+    \item \link{https://github.com/liweitianux/resume}{\texttt{resume}}:
+          (\LaTeX)
+          \emph{此简历}的模板和源文件
+\end{itemize}
+
+%======================================================================
+\sectionTitle{科研成果}{\faAtom}
+%======================================================================
+\begin{itemize}
+    \item 开发低频射电天空图像模拟软件：
+          \link{https://github.com/liweitianux/fg21sim}{\texttt{FG21sim}}
+    \item 开发程序实现~X~射线天文观测数据的半自动化分析：
+          \link{https://github.com/liweitianux/chandra-acis-analysis}{\texttt{chandra-acis-analysis}}
+    \item 利用卷积去噪自动编码器（CDAE）在频率维度分离微弱的宇宙再电离（EoR）信号
+    \item 利用卷积神经网络（CNN）对 FIRST 巡天的射电星系图像根据形态特征进行分类
+    \item 显著改进星系团射电晕的建模，并考虑低频干涉阵列的复杂仪器效应
+    \item 改进~X~射线光谱拟合的背景成分建模，获到更准确可靠的拟合结果
+    \item 发表 2 篇第一作者以及 8 篇合作者 SCI 论文
+\end{itemize}
+
+
+
